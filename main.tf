@@ -18,7 +18,17 @@ variable "prefix" {
   default = "terraform"
 }
 
-resource "azurerm_resource_group" "example700" {
-  name     = "resource-group-700"
+terraform { 
+  cloud { 
+    
+    organization = "april-org" 
+
+    workspaces { 
+      name = "march-20-ci-cd" 
+    } 
+  } 
+}
+resource "azurerm_resource_group" "example800" {
+  name     = "resource-group-800"
   location = "Central India"
 }
