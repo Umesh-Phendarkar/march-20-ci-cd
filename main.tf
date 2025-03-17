@@ -19,7 +19,7 @@ variable "prefix" {
 }
 
 
-resource "azurerm_resource_group" "example300" {
-  name     = "resource-group-300"
+resource "azurerm_resource_group" "example400" {
+  name     = "resource-group-400"
   location = "Central India"
 }
