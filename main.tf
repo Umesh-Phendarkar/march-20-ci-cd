@@ -18,14 +18,7 @@ variable "prefix" {
   default = "terraform"
 }
 
-
-resource "azurerm_resource_group" "example400" {
-  name     = "resource-group-400"
-  location = "Central India"
-}
-
 resource "azurerm_resource_group" "example600" {
   name     = "resource-group-600"
   location = "Central India"
 }
-
