@@ -2,40 +2,45 @@ name: 'Terraform CI/CD'
 
 on:
   push:
-    branches:
-      - main
+    branches: [main]
+  pull_request:
+
+env:
+  TF_CLOUD_ORGANIZATION: "april-org"
+  TFE_TOKEN: ${{ secrets.TFE_TOKEN }}
+  ARM_CLIENT_ID: ${{ secrets.ARM_CLIENT_ID }}
+  ARM_CLIENT_SECRET: ${{ secrets.ARM_CLIENT_SECRET }}
+  ARM_SUBSCRIPTION_ID: ${{ secrets.ARM_SUBSCRIPTION_ID }}
+  ARM_TENANT_ID: ${{ secrets.ARM_TENANT_ID }}
 
 jobs:
   terraform:
+    name: Terraform
     runs-on: ubuntu-latest
 
+    permissions:
+      contents: read
+      pull-requests: write
+      id-token: write
+
     steps:
-      # Checkout the repository
-      - name: Checkout code
-        uses: actions/checkout@v3
+    - name: Checkout code
+      uses: actions/checkout@v4
 
-      # Set up Terraform CLI
-      - name: Setup Terraform
-        uses: hashicorp/setup-terraform@v2
-        with:
-          terraform_version: '1.5.0'
+    - name: Setup Terraform
+      uses: hashicorp/setup-terraform@v2
+      with:
+        terraform_version: 1.8.0
+        cli_config_credentials_token: ${{ env.TFE_TOKEN }}
 
-      # Initialize Terraform
-      - name: Terraform Init
-        run: terraform init
+    - name: Terraform Init
+      run: terraform init
 
-      # Plan Terraform changes
-      - name: Terraform Plan
-        run: terraform plan -out=tfplan
+    - name: Terraform Plan
+      run: terraform plan -input=false
+      if: github.event_name == 'pull_request'
 
-      # Apply Terraform changes (only on push to main)
-      - name: Terraform Apply
-        if: github.ref == 'refs/heads/main'
-        run: terraform apply tfplan
+    - name: Terraform Apply
+      run: terraform apply -auto-approve -input=false
+      if: github.ref == 'refs/heads/main'
 
-    env:
-      ARM_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
-      ARM_CLIENT_SECRET: ${{ secrets.AZURE_CLIENT_SECRET }}
-      ARM_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
-      ARM_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
-      TFE_TOKEN: ${{ secrets.TFE_TOKEN }}
