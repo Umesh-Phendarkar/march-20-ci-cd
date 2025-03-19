@@ -1,46 +1,17 @@
-name: 'Terraform CI/CD'
-
+name: Terraform CI/CD
 on:
+  pull_request:
+    branches: [main]
   push:
     branches: [main]
-  pull_request:
-
-env:
-  TF_CLOUD_ORGANIZATION: "april-org"
-  TFE_TOKEN: ${{ secrets.TFE_TOKEN }}
-  ARM_CLIENT_ID: ${{ secrets.ARM_CLIENT_ID }}
-  ARM_CLIENT_SECRET: ${{ secrets.ARM_CLIENT_SECRET }}
-  ARM_SUBSCRIPTION_ID: ${{ secrets.ARM_SUBSCRIPTION_ID }}
-  ARM_TENANT_ID: ${{ secrets.ARM_TENANT_ID }}
-
 jobs:
-  terraform:
-    name: Terraform
+  plan:
     runs-on: ubuntu-latest
-
-    permissions:
-      contents: read
-      pull-requests: write
-      id-token: write
-
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
-
-    - name: Setup Terraform
-      uses: hashicorp/setup-terraform@v2
-      with:
-        terraform_version: 1.8.0
-        cli_config_credentials_token: ${{ env.TFE_TOKEN }}
-
-    - name: Terraform Init
-      run: terraform init
-
-    - name: Terraform Plan
-      run: terraform plan -input=false
-      if: github.event_name == 'pull_request'
-
-    - name: Terraform Apply
-      run: terraform apply -auto-approve -input=false
-      if: github.ref == 'refs/heads/main'
+      - uses: actions/checkout@v4
+      - uses: hashicorp/setup-terraform@v2
+        with:
+          terraform_version: 1.8.0
+      - run: terraform init
+      - run: terraform plan
 
